@@ -4,12 +4,8 @@ import TelegramBot from 'node-telegram-bot-api'
 
 // Load and parse environment variables
 const TELEGRAM_TOKEN = env.get('TELEGRAM_TOKEN').required().asString()
-const CHANNEL_USERNAMES = env
-  .get('CHANNEL_USERNAMES')
-  .required()
-  .asArray()
-  .map(username => `@${username}`)
-  .slice(0, 1)
+const CHAT_ID = env.get('CHAT_ID').required().asString()
+const CHAT_TOPIC_IDS = env.get('CHAT_TOPIC_IDS').required().asArray().map(Number)
 
 // Create bot
 const bot = new TelegramBot(TELEGRAM_TOKEN)
@@ -17,9 +13,11 @@ const bot = new TelegramBot(TELEGRAM_TOKEN)
 // Send test messages
 const message = composeMessage()
 await Promise.all(
-  CHANNEL_USERNAMES.map(channel =>
-    bot.sendMessage(channel, message, {
-      parse_mode: 'MarkdownV2'
+  CHAT_TOPIC_IDS.map(chatTopicId =>
+    bot.sendMessage(CHAT_ID, message, {
+      parse_mode: 'MarkdownV2',
+      disable_web_page_preview: true,
+      message_thread_id: chatTopicId
     })
   )
 )
